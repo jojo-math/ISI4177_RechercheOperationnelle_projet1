@@ -13,6 +13,7 @@ import csv
 import random
 from itertools import combinations
 import matplotlib.pyplot as plt
+from collections import defaultdict, deque
 
 def generer_contacts_csv(nb_clients=250, taux_connexion=0.1, fichier_sortie="contacts.csv"):
     """
@@ -73,3 +74,47 @@ def calculer_degres(aretes, nb_clients=250):
     plt.show()
 
     return degClients
+
+def sommets_atteints_en_4_jours(aretes, nb_clients=250, nb_jours=4):
+    """
+    Calcule le nombre total de sommets atteints après nb_jours jours,
+    en partant du sommet de degré maximal.
+    
+    Paramètres :
+        aretes : liste des arêtes [i, j, n]
+        nb_clients : nombre total de sommets (par défaut 250)
+        nb_jours : durée maximale de la propagation (par défaut 4)
+    
+    Retourne :
+        nombre total de sommets atteints
+    """
+    # --- 1. Construire le graphe sous forme de dictionnaire d'adjacence ---
+    graphe = defaultdict(list)
+    for i, j, n in aretes:
+        graphe[i].append((j, n))
+        graphe[j].append((i, n))  # graphe non orienté
+
+    # --- 2. Calculer le degré de chaque sommet ---
+    degres = {i: len(graphe[i]) for i in range(nb_clients)}
+
+    # --- 3. Trouver le sommet de degré maximal ---
+    sommet_depart = max(degres, key=degres.get)
+    print(f"🚀 Sommet de départ : {sommet_depart} (degré = {degres[sommet_depart]})")
+
+    # --- 4. Parcours en largeur (BFS pondéré par les jours) ---
+    visites = set([sommet_depart])
+    queue = deque([(sommet_depart, 0)])  # (sommet, jours_courants)
+
+    while queue:
+        sommet, jour_courant = queue.popleft()
+        for voisin, distance in graphe[sommet]:
+            nouveau_jour = jour_courant + distance
+            if nouveau_jour <= nb_jours and voisin not in visites:
+                visites.add(voisin)
+                queue.append((voisin, nouveau_jour))
+
+    # --- 5. Résultat ---
+    nb_atteints = len(visites)
+    print(f"✅ Sommets atteints après {nb_jours} jours : {nb_atteints} sur {nb_clients}")
+    return nb_atteints
+
