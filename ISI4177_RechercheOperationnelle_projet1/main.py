@@ -9,7 +9,8 @@ from graph_utils import (
     generer_contacts_csv,
     lire_contacts_csv,
     calculer_degres,
-    sommets_atteints_en_4_jours
+    sommets_atteints_en_4_jours,
+    sommets_atteints_depuis_proximite_min
 )
 
 def main():
@@ -27,9 +28,12 @@ def main():
     for i in range(10):
         print(f"Client {i} → degré = {degClients[i]}")
         
-    # Simulation de propagation sur 4 jours
+    # 1 Simulation de propagation sur 4 jours
     nb_atteints = sommets_atteints_en_4_jours(aretes, nb_clients=250, nb_jours=4)
     print(f"\n📊 Total de clients touchés après 4 jours : {nb_atteints}")
+    
+    # 2 Propagation depuis le sommet de plus faible proximité
+    sommets_atteints_depuis_proximite_min(aretes, nb_clients=250, nb_jours=3)
 
 if __name__ == "__main__":
     main()

@@ -14,6 +14,8 @@ import random
 from itertools import combinations
 import matplotlib.pyplot as plt
 from collections import defaultdict, deque
+from collections import defaultdict, deque
+import math
 
 def generer_contacts_csv(nb_clients=250, taux_connexion=0.1, fichier_sortie="contacts.csv"):
     """
@@ -118,3 +120,62 @@ def sommets_atteints_en_4_jours(aretes, nb_clients=250, nb_jours=4):
     print(f"✅ Sommets atteints après {nb_jours} jours : {nb_atteints} sur {nb_clients}")
     return nb_atteints
 
+def sommet_proximite_min(graphe, nb_clients=250):
+    """
+    Calcule la proximité de chaque sommet (inverse de la somme des distances minimales)
+    et retourne le sommet ayant la plus faible proximité.
+    """
+    def bfs_distances(start):
+        # BFS pondéré (les arêtes ont un poids en jours)
+        distances = {i: math.inf for i in range(nb_clients)}
+        distances[start] = 0
+        queue = deque([start])
+
+        while queue:
+            sommet = queue.popleft()
+            for voisin, poids in graphe[sommet]:
+                if distances[sommet] + poids < distances[voisin]:
+                    distances[voisin] = distances[sommet] + poids
+                    queue.append(voisin)
+        return distances
+
+    proximites = {}
+    for i in range(nb_clients):
+        distances = bfs_distances(i)
+        somme_distances = sum(d for d in distances.values() if d < math.inf)
+        proximites[i] = 1 / somme_distances if somme_distances > 0 else 0
+
+    sommet_min = min(proximites, key=proximites.get)
+    print(f"📉 Sommet de plus faible proximité : {sommet_min} (valeur = {proximites[sommet_min]:.6f})")
+    return sommet_min
+
+
+def sommets_atteints_depuis_proximite_min(aretes, nb_clients=250, nb_jours=3):
+    """
+    Calcule le nombre de sommets atteints après nb_jours jours,
+    en partant du sommet de plus faible proximité.
+    """
+    # --- 1. Construire le graphe ---
+    graphe = defaultdict(list)
+    for i, j, n in aretes:
+        graphe[i].append((j, n))
+        graphe[j].append((i, n))
+
+    # --- 2. Trouver le sommet de plus faible proximité ---
+    sommet_depart = sommet_proximite_min(graphe, nb_clients)
+
+    # --- 3. Parcours pondéré limité à nb_jours ---
+    visites = set([sommet_depart])
+    queue = deque([(sommet_depart, 0)])
+
+    while queue:
+        sommet, jour_courant = queue.popleft()
+        for voisin, distance in graphe[sommet]:
+            nouveau_jour = jour_courant + distance
+            if nouveau_jour <= nb_jours and voisin not in visites:
+                visites.add(voisin)
+                queue.append((voisin, nouveau_jour))
+
+    nb_atteints = len(visites)
+    print(f"✅ Sommets atteints après {nb_jours} jours : {nb_atteints} sur {nb_clients}")
+    return nb_atteints
