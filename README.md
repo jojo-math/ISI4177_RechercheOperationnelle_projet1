@@ -8,9 +8,9 @@
 ## 👥 Membres du groupe
 | Nom complet | Rôle |
 |--------------|------|
-| MELONG TSAYEM Joan Mathias | ISI-2022-XXX | Chef de projet / Développeur principal |
-| BIANGO AFANA G Miguel | ISI-2022-XXX | Développeur Python |
-| ZOA EVINA Alexandre Roslyn | ISI-2022-XXX | Analyste & Testeuse |
+| MELONG TSAYEM Joan Mathias | Chef de projet / Développeur principal |
+| BIANGO AFANA G Miguel | Développeur Python |
+| ZOA EVINA Alexandre Roslyn | Développeur Python |
 
 ---
 
