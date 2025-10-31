@@ -12,6 +12,7 @@ fichier des methodes
 import csv
 import random
 from itertools import combinations
+import matplotlib.pyplot as plt
 
 def generer_contacts_csv(nb_clients=250, taux_connexion=0.1, fichier_sortie="contacts.csv"):
     """
@@ -45,3 +46,30 @@ def lire_contacts_csv(fichier_entree="contacts.csv"):
             i, j, n = int(ligne[0]), int(ligne[1]), int(ligne[2])
             aretes.append([i, j, n])
     return aretes
+
+
+def calculer_degres(aretes, nb_clients=250):
+    """
+    Calcule le degré de chaque sommet du graphe à partir de la liste des arêtes.
+    Affiche ensuite un histogramme de la distribution des degrés.
+    Retourne : dict {client_id: degré}
+    """
+    # Initialisation du dictionnaire de degrés
+    degClients = {i: 0 for i in range(nb_clients)}
+
+    # Comptage des degrés
+    for i, j, _ in aretes:
+        degClients[i] += 1
+        degClients[j] += 1  # graphe non orienté → deux sens comptés
+
+    # --- Affichage de l'histogramme ---
+    plt.figure(figsize=(12, 5))
+    plt.bar(degClients.keys(), degClients.values(), width=0.8)
+    plt.title("Distribution des degrés des sommets (clients)")
+    plt.xlabel("Identifiant du client")
+    plt.ylabel("Degré (nombre de contacts)")
+    plt.grid(axis='y', linestyle='--', alpha=0.7)
+    plt.tight_layout()
+    plt.show()
+
+    return degClients
